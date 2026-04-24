@@ -55,6 +55,7 @@ import com.rroot.medboard.data.Topic
 import com.rroot.medboard.data.TopicBlock
 import com.rroot.medboard.data.TopicReference
 import com.rroot.medboard.data.TopicSection
+import com.rroot.medboard.data.TopicSource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -201,18 +202,50 @@ private fun SectionBlock(section: TopicSection) {
         )
         HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
         section.blocks.forEach { block ->
-            when (block) {
-                is TopicBlock.Paragraph -> Text(block.text, style = MaterialTheme.typography.bodyLarge)
-                is TopicBlock.SubHeading -> Text(
-                    block.text,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                is TopicBlock.Bullets -> BulletList(block.items, ordered = false)
-                is TopicBlock.Numbered -> BulletList(block.items, ordered = true)
-                is TopicBlock.Table -> MedTable(block)
-                is TopicBlock.Callout -> CalloutBox(block.kind, block.text)
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                when (block) {
+                    is TopicBlock.Paragraph -> Text(block.text, style = MaterialTheme.typography.bodyLarge)
+                    is TopicBlock.SubHeading -> Text(
+                        block.text,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    is TopicBlock.Bullets -> BulletList(block.items, ordered = false)
+                    is TopicBlock.Numbered -> BulletList(block.items, ordered = true)
+                    is TopicBlock.Table -> MedTable(block)
+                    is TopicBlock.Callout -> CalloutBox(block.kind, block.text)
+                }
+                block.source?.let { SourceAttribution(it) }
             }
+        }
+    }
+}
+
+@Composable
+private fun SourceAttribution(source: TopicSource) {
+    val bg = when (source) {
+        TopicSource.Harrison -> MaterialTheme.colorScheme.secondary.copy(alpha = 0.12f)
+        TopicSource.Davidson -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.14f)
+        TopicSource.Both -> MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+    }
+    val tint = when (source) {
+        TopicSource.Harrison -> MaterialTheme.colorScheme.secondary
+        TopicSource.Davidson -> MaterialTheme.colorScheme.tertiary
+        TopicSource.Both -> MaterialTheme.colorScheme.primary
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(999.dp))
+                .background(bg)
+                .padding(horizontal = 8.dp, vertical = 3.dp),
+        ) {
+            Text(
+                "\u2014 " + source.label(),
+                style = MaterialTheme.typography.labelSmall,
+                color = tint,
+                fontWeight = FontWeight.Medium,
+            )
         }
     }
 }

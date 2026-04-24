@@ -19,7 +19,10 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrightnessAuto
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -39,8 +42,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import com.rroot.medboard.data.ContentRegistry
 import com.rroot.medboard.data.Specialty
+import com.rroot.medboard.ui.theme.LocalThemeController
+import com.rroot.medboard.ui.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +70,20 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    val controller = LocalThemeController.current
+                    IconButton(onClick = { controller.onCycle() }) {
+                        val icon = when (controller.mode) {
+                            ThemeMode.System -> Icons.Default.BrightnessAuto
+                            ThemeMode.Light -> Icons.Default.LightMode
+                            ThemeMode.Dark -> Icons.Default.DarkMode
+                        }
+                        val desc = when (controller.mode) {
+                            ThemeMode.System -> "Theme: System"
+                            ThemeMode.Light -> "Theme: Light"
+                            ThemeMode.Dark -> "Theme: Dark"
+                        }
+                        Icon(icon, desc)
+                    }
                     IconButton(onClick = onSearch) { Icon(Icons.Default.Search, null) }
                     IconButton(onClick = onDisclaimer) { Icon(Icons.Default.Info, null) }
                 },

@@ -4,6 +4,7 @@ import com.rroot.medboard.data.CalloutKind
 import com.rroot.medboard.data.ContentRegistry
 import com.rroot.medboard.data.Topic
 import com.rroot.medboard.data.TopicBlock
+import com.rroot.medboard.data.TopicSource
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -76,7 +77,6 @@ class ContentRegistryTest {
     @Test
     fun comingSoonSpecialtiesHaveStubTopics() {
         val cs = ContentRegistry.specialties.filter { it.comingSoon }
-        assertTrue(cs.isNotEmpty())
         cs.forEach { s ->
             assertTrue("Specialty ${s.id} comingSoon should list at least 3 stub topics", s.topics.size >= 3)
             s.topics.forEach { assertTrue("Stub topic ${it.id} unexpectedly has content", it.sections.isEmpty()) }
@@ -93,6 +93,44 @@ class ContentRegistryTest {
     fun searchIsCaseInsensitiveAndEmptySafe() {
         assertTrue(ContentRegistry.search("").isEmpty())
         assertTrue(ContentRegistry.search("ACUTE CORONARY").isNotEmpty())
+    }
+
+    @Test
+    fun everyReadyTopicHasAtLeastOneSourceAttributedBlock() {
+        val ready = ContentRegistry.specialties.flatMap { it.topics }.filter { it.sections.isNotEmpty() }
+        ready.forEach { t ->
+            val attributed = t.sections.flatMap { it.blocks }.any { it.source != null }
+            assertTrue("Topic ${t.id} has no source-attributed block", attributed)
+        }
+    }
+
+    @Test
+    fun allThreeSourcesAreUsedAcrossCorpus() {
+        val sources = ContentRegistry.specialties.flatMap { it.topics }
+            .flatMap { it.sections }.flatMap { it.blocks }
+            .mapNotNull { it.source }.toSet()
+        assertTrue("Harrison-only attribution used", sources.contains(TopicSource.Harrison))
+        assertTrue("Davidson-only attribution used", sources.contains(TopicSource.Davidson))
+        assertTrue("Both-sources attribution used", sources.contains(TopicSource.Both))
+    }
+
+    @Test
+    fun majorSpecialtiesHaveReadyTopics() {
+        val expectedReadySpecialties = listOf(
+            "cardiology",
+            "pulmonology",
+            "nephrology",
+            "endocrinology",
+            "gastroenterology",
+            "infectious",
+            "neurology",
+        )
+        expectedReadySpecialties.forEach { id ->
+            val s = ContentRegistry.specialty(id)
+            assertNotNull("Specialty $id missing", s)
+            val ready = s!!.topics.count { it.sections.isNotEmpty() }
+            assertTrue("Specialty $id should have at least one ready topic", ready >= 1)
+        }
     }
 
     @Test

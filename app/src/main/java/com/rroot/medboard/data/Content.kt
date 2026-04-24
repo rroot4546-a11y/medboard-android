@@ -13,6 +13,19 @@ package com.rroot.medboard.data
  * same policy for any new topic: do not paste from the textbooks.
  */
 
+/** Which textbook(s) a piece of content was written with reference to. */
+enum class TopicSource {
+    Harrison,
+    Davidson,
+    Both;
+
+    fun label(): String = when (this) {
+        Harrison -> "Harrison 21e"
+        Davidson -> "Davidson 24e"
+        Both -> "Harrison 21e \u00b7 Davidson 24e"
+    }
+}
+
 /** A top-level specialty (Cardiology, Pulmonology, etc.). */
 data class Specialty(
     val id: String,
@@ -49,16 +62,40 @@ data class TopicSection(
 )
 
 sealed class TopicBlock {
-    data class Paragraph(val text: String) : TopicBlock()
-    data class Bullets(val items: List<String>) : TopicBlock()
-    data class Numbered(val items: List<String>) : TopicBlock()
+    /** Source attribution shown after the block, if any. */
+    abstract val source: TopicSource?
+
+    data class Paragraph(
+        val text: String,
+        override val source: TopicSource? = TopicSource.Both,
+    ) : TopicBlock()
+
+    data class Bullets(
+        val items: List<String>,
+        override val source: TopicSource? = TopicSource.Both,
+    ) : TopicBlock()
+
+    data class Numbered(
+        val items: List<String>,
+        override val source: TopicSource? = TopicSource.Both,
+    ) : TopicBlock()
+
     data class Table(
         val title: String?,
         val headers: List<String>,
         val rows: List<List<String>>,
+        override val source: TopicSource? = TopicSource.Both,
     ) : TopicBlock()
-    data class Callout(val kind: CalloutKind, val text: String) : TopicBlock()
-    data class SubHeading(val text: String) : TopicBlock()
+
+    data class Callout(
+        val kind: CalloutKind,
+        val text: String,
+        override val source: TopicSource? = null,
+    ) : TopicBlock()
+
+    data class SubHeading(val text: String) : TopicBlock() {
+        override val source: TopicSource? = null
+    }
 }
 
 enum class CalloutKind { Pearl, Warning, Pitfall, Exam }

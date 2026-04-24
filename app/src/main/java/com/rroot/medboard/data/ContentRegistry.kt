@@ -2,9 +2,10 @@ package com.rroot.medboard.data
 
 /**
  * All specialties and their topics, assembled from the per-specialty
- * content files. Cardiology is content-complete for the first five
- * topics; other specialties are listed as "coming soon" so users can
- * see the planned scope of the app.
+ * content files. Topics that are still under construction appear as
+ * \u201ccoming soon\u201d stubs so users can see the planned scope. Finished
+ * topics have sections, tables, pearls, Q&A and per-paragraph source
+ * attributions.
  */
 object ContentRegistry {
 
@@ -14,112 +15,124 @@ object ContentRegistry {
         subtitle = subtitle,
     )
 
+    private val cardiologyTopics: List<Topic> = CardiologyTopics.all +
+        CardiologyTopicsPart2.all +
+        listOf(
+            topicStub("card-brady", "Bradyarrhythmias & AV block"),
+            topicStub("card-svt", "Supraventricular Tachycardias"),
+            topicStub("card-vt", "Ventricular Tachycardia & Fibrillation"),
+        )
+
+    private val respiratoryTopics: List<Topic> = RespiratoryTopics.all +
+        listOf(
+            topicStub("resp-cap", "Community-acquired Pneumonia"),
+            topicStub("resp-hap", "Hospital-acquired & Ventilator-associated Pneumonia"),
+            topicStub("resp-tb", "Tuberculosis"),
+            topicStub("resp-ph", "Pulmonary Hypertension"),
+            topicStub("resp-ild", "Interstitial Lung Disease"),
+            topicStub("resp-pleural", "Pleural Effusion & Pneumothorax"),
+            topicStub("resp-ca", "Lung Cancer"),
+        )
+
+    private val nephrologyTopics: List<Topic> = NephrologyTopics.all +
+        listOf(
+            topicStub("neph-gn", "Glomerulonephritis & Nephrotic Syndrome"),
+            topicStub("neph-electrolytes", "Electrolyte Disorders"),
+            topicStub("neph-acid-base", "Acid\u2013Base Disorders"),
+            topicStub("neph-uti", "Urinary Tract Infection & Pyelonephritis"),
+            topicStub("neph-renal-transplant", "Renal Replacement & Transplantation"),
+        )
+
+    private val endocrinologyTopics: List<Topic> = listOf(
+        topicStub("endo-dm1", "Type 1 Diabetes Mellitus"),
+    ) + EndocrinologyTopics.all + listOf(
+        topicStub("endo-adrenal", "Adrenal Insufficiency & Cushing\u2019s"),
+        topicStub("endo-pituitary", "Pituitary Disorders"),
+        topicStub("endo-calcium", "Calcium & Bone Metabolism"),
+        topicStub("endo-pcos", "PCOS & Hirsutism"),
+    )
+
+    private val gastroTopics: List<Topic> = listOf(
+        topicStub("gi-gerd", "GERD & Peptic Ulcer Disease"),
+    ) + GastroTopics.all + listOf(
+        topicStub("gi-lower-gib", "Lower GI Bleeding"),
+        topicStub("gi-ibd", "Inflammatory Bowel Disease"),
+        topicStub("gi-ibs", "Irritable Bowel Syndrome"),
+        topicStub("gi-coeliac", "Coeliac Disease"),
+        topicStub("gi-hepatitis", "Viral Hepatitis"),
+        topicStub("gi-pancreatitis", "Acute & Chronic Pancreatitis"),
+        topicStub("gi-gb", "Gallbladder & Biliary Disease"),
+    )
+
+    private val infectiousTopics: List<Topic> = InfectiousTopics.all +
+        listOf(
+            topicStub("id-hiv", "HIV Infection"),
+            topicStub("id-malaria", "Malaria"),
+            topicStub("id-tb", "Tuberculosis"),
+            topicStub("id-cdiff", "Clostridioides difficile Infection"),
+            topicStub("id-stewardship", "Antimicrobial Stewardship"),
+        )
+
+    private val neurologyTopics: List<Topic> = NeurologyTopics.all +
+        listOf(
+            topicStub("neuro-tia", "Transient Ischaemic Attack"),
+            topicStub("neuro-headache", "Headache Disorders"),
+            topicStub("neuro-ms", "Multiple Sclerosis"),
+            topicStub("neuro-pd", "Parkinson\u2019s Disease"),
+            topicStub("neuro-dementia", "Dementia Syndromes"),
+            topicStub("neuro-gbs-mg", "Guillain\u2013Barr\u00e9 & Myasthenia Gravis"),
+            topicStub("neuro-spinal", "Spinal Cord Disease"),
+        )
+
     val specialties: List<Specialty> = listOf(
         Specialty(
             id = "cardiology",
             name = "Cardiology",
             blurb = "Coronary disease, heart failure, arrhythmias, valves and more.",
             code = "CV",
-            topics = CardiologyTopics.all,
+            topics = cardiologyTopics,
         ),
         Specialty(
             id = "pulmonology",
             name = "Respiratory Medicine",
             blurb = "Obstructive & restrictive lung disease, pneumonia, PE, pleural disease.",
             code = "RS",
-            topics = listOf(
-                topicStub("resp-copd", "COPD"),
-                topicStub("resp-asthma", "Asthma"),
-                topicStub("resp-cap", "Community-acquired Pneumonia"),
-                topicStub("resp-hap", "Hospital-acquired & Ventilator-associated Pneumonia"),
-                topicStub("resp-tb", "Tuberculosis"),
-                topicStub("resp-pe", "Pulmonary Embolism"),
-                topicStub("resp-ph", "Pulmonary Hypertension"),
-                topicStub("resp-ild", "Interstitial Lung Disease"),
-                topicStub("resp-pleural", "Pleural Effusion & Pneumothorax"),
-                topicStub("resp-ca", "Lung Cancer"),
-            ),
+            topics = respiratoryTopics,
         ),
         Specialty(
             id = "nephrology",
             name = "Nephrology",
             blurb = "AKI, CKD, glomerular disease, electrolyte and acid-base disorders.",
             code = "RN",
-            topics = listOf(
-                topicStub("neph-aki", "Acute Kidney Injury"),
-                topicStub("neph-ckd", "Chronic Kidney Disease"),
-                topicStub("neph-gn", "Glomerulonephritis & Nephrotic Syndrome"),
-                topicStub("neph-electrolytes", "Electrolyte Disorders"),
-                topicStub("neph-acid-base", "Acid\u2013Base Disorders"),
-                topicStub("neph-uti", "Urinary Tract Infection & Pyelonephritis"),
-                topicStub("neph-renal-transplant", "Renal Replacement & Transplantation"),
-            ),
+            topics = nephrologyTopics,
         ),
         Specialty(
             id = "endocrinology",
             name = "Endocrinology",
             blurb = "Diabetes, thyroid, adrenal, pituitary and bone disease.",
             code = "EN",
-            topics = listOf(
-                topicStub("endo-dm1", "Type 1 Diabetes Mellitus"),
-                topicStub("endo-dm2", "Type 2 Diabetes Mellitus"),
-                topicStub("endo-dka", "DKA & Hyperosmolar Hyperglycaemic State"),
-                topicStub("endo-thyroid", "Thyroid Disease"),
-                topicStub("endo-adrenal", "Adrenal Insufficiency & Cushing\u2019s"),
-                topicStub("endo-pituitary", "Pituitary Disorders"),
-                topicStub("endo-calcium", "Calcium & Bone Metabolism"),
-                topicStub("endo-pcos", "PCOS & Hirsutism"),
-            ),
+            topics = endocrinologyTopics,
         ),
         Specialty(
             id = "gastroenterology",
             name = "Gastroenterology & Hepatology",
             blurb = "Oesophageal to hepatobiliary disease, IBD and GI bleeding.",
             code = "GI",
-            topics = listOf(
-                topicStub("gi-gerd", "GERD & Peptic Ulcer Disease"),
-                topicStub("gi-upper-gib", "Upper GI Bleeding"),
-                topicStub("gi-lower-gib", "Lower GI Bleeding"),
-                topicStub("gi-ibd", "Inflammatory Bowel Disease"),
-                topicStub("gi-ibs", "Irritable Bowel Syndrome"),
-                topicStub("gi-coeliac", "Coeliac Disease"),
-                topicStub("gi-hepatitis", "Viral Hepatitis"),
-                topicStub("gi-cirrhosis", "Cirrhosis & its Complications"),
-                topicStub("gi-pancreatitis", "Acute & Chronic Pancreatitis"),
-                topicStub("gi-gb", "Gallbladder & Biliary Disease"),
-            ),
+            topics = gastroTopics,
         ),
         Specialty(
             id = "infectious",
             name = "Infectious Diseases",
             blurb = "Sepsis, HIV, tropical infections, healthcare-associated infection.",
             code = "ID",
-            topics = listOf(
-                topicStub("id-sepsis", "Sepsis & Septic Shock"),
-                topicStub("id-hiv", "HIV Infection"),
-                topicStub("id-malaria", "Malaria"),
-                topicStub("id-tb", "Tuberculosis"),
-                topicStub("id-meningitis", "Meningitis & Encephalitis"),
-                topicStub("id-cdiff", "Clostridioides difficile Infection"),
-                topicStub("id-stewardship", "Antimicrobial Stewardship"),
-            ),
+            topics = infectiousTopics,
         ),
         Specialty(
             id = "neurology",
             name = "Neurology",
             blurb = "Stroke, seizures, neuromuscular and neurodegenerative disease.",
             code = "NE",
-            topics = listOf(
-                topicStub("neuro-stroke", "Ischaemic & Haemorrhagic Stroke"),
-                topicStub("neuro-tia", "Transient Ischaemic Attack"),
-                topicStub("neuro-seizures", "Seizures & Status Epilepticus"),
-                topicStub("neuro-headache", "Headache Disorders"),
-                topicStub("neuro-ms", "Multiple Sclerosis"),
-                topicStub("neuro-pd", "Parkinson\u2019s Disease"),
-                topicStub("neuro-dementia", "Dementia Syndromes"),
-                topicStub("neuro-gbs-mg", "Guillain\u2013Barr\u00e9 & Myasthenia Gravis"),
-                topicStub("neuro-spinal", "Spinal Cord Disease"),
-            ),
+            topics = neurologyTopics,
         ),
         Specialty(
             id = "haemonc",

@@ -833,13 +833,5 @@ internal object CardiologyTopics {
         af,
         hypertension,
         endocarditis,
-        stub("card-stable-ihd", "Stable Coronary Artery Disease", "Chronic coronary syndrome"),
-        stub("card-valvular", "Valvular Heart Disease", "AS, AR, MS, MR"),
-        stub("card-cardiomyopathy", "Cardiomyopathies", "HCM, DCM, RCM, ARVC"),
-        stub("card-pericardial", "Pericardial Disease", "Pericarditis, tamponade, constriction"),
-        stub("card-dissection", "Aortic Dissection", "Stanford A and B"),
-        stub("card-brady", "Bradyarrhythmias & Heart Block", "Sinus node disease, AV block"),
-        stub("card-svt", "Supraventricular Tachycardias", "AVNRT, AVRT, atrial tachycardia"),
-        stub("card-vt", "Ventricular Arrhythmias", "VT/VF, channelopathies"),
     )
 }
