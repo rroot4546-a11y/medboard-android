@@ -24,6 +24,7 @@ fun AppNavHost(navController: NavHostController) {
         composable(Routes.HOME) {
             HomeScreen(
                 onSpecialty = { navController.navigate(Routes.specialty(it)) },
+                onTopic = { navController.navigate(Routes.topic(it)) },
                 onSearch = { navController.navigate(Routes.SEARCH) },
                 onDisclaimer = { navController.navigate(Routes.DISCLAIMER) },
             )

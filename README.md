@@ -1,41 +1,58 @@
 # MedBoard
 
-Android revision app for internal-medicine board exams.
+A modern, offline-first Android study companion for internal-medicine board revision. Built with Kotlin, Jetpack Compose and Material 3 (minSdk 26, targetSdk 34).
 
-Written in Kotlin + Jetpack Compose + Material 3. minSdk 26, targetSdk 34.
+> **Study aid only:** MedBoard is not a clinical decision-support system. Verify management and prescribing against current local guidance and a live formulary.
 
-## Design brief
+## Current experience
 
-Modern, card-based UI with:
-- Specialty grid home screen with a status chip per specialty (Ready / Coming soon).
-- Topic detail screen that renders structured content: section headings, paragraphs, bullet / numbered lists, tables with sticky headers, callouts (Pearl / Warning / Pitfall / Exam tip), a **Board pearls** card, and a **Rapid Q&A** card with tap-to-reveal answers.
-- Global topic search.
-- Dedicated About & disclaimer screen explaining the content policy.
+- **Structured medical reader** for sections, paragraphs, ordered and bullet lists, horizontally scrollable tables, safety/exam callouts, board pearls and tap-to-reveal rapid Q&A.
+- **Full-content ranked search** across topic titles and subtitles, specialty names/descriptions, section/subheadings, paragraphs, list items, table titles/headers/cells, callouts, pearls, and Q&A questions/answers. Results explain where a match occurred and show a context snippet.
+- **Persistent study state** backed by Preferences DataStore: bookmarks and an eight-topic recently opened history survive process/device restarts.
+- **Study dashboard** with content metrics, recent/bookmarked continuation cards, and an adaptive specialty grid for phones and larger widths.
+- **Material 3 light/dark/system themes**, edge-to-edge layout, readable typography and explicit empty/planned states.
+- **Automated corpus validation** for duplicate IDs, required ready-topic blocks/references, malformed tables, blank content, suspicious truncated endings, raw/unbalanced Markdown, extreme whitespace, and prompt/placeholder leakage.
 
-## Content policy (important)
+The bundled corpus currently covers reviewed topics across cardiology, respiratory medicine, nephrology, endocrinology, gastroenterology/hepatology, infectious diseases and neurology. Planned topic stubs are deliberately visible but clearly disabled until reviewed content exists.
 
-Every topic in this app is written **in the authors' own words** as an original concise revision summary. Harrison's Principles of Internal Medicine (21st ed.) and Davidson's Principles and Practice of Medicine (24th ed.) are cited as the source texts that were studied, but **no text, table, or figure** from those books has been copied into the app.
+## Content policy
 
-Contributors MUST follow the same policy — do not paste from the textbooks. Instead, read the referenced chapters and write an original summary in your own words, then cite the chapter in `TopicReference`.
+Every topic must be an **original concise summary written in the contributors' own words**. Harrison's Principles of Internal Medicine (21st ed.) and Davidson's Principles and Practice of Medicine (24th ed.) are cited as study references; their prose, tables and figures must not be copied into this repository.
 
-Images, when added, must be from openly-licensed sources only (Wikimedia Commons, CDC PHIL, PLOS, public-domain atlases). Each image must be attributed on the reference page.
+When contributing content:
 
-## Current content
+1. Write a fresh synthesis rather than paraphrasing line by line.
+2. Add meaningful `TopicReference` entries and source attribution.
+3. Include sections, board pearls and rapid Q&A for every ready topic.
+4. Use openly licensed images only, with an explicit source and licence.
+5. Run the validator-backed unit tests before opening a PR.
 
-- **Cardiology** — 5 full topics (Acute coronary syndromes, Heart failure, Atrial fibrillation, Hypertension, Infective endocarditis) + 8 stubs to be written.
-- **9 other specialties** (Respiratory, Nephrology, Endocrinology, GI/Hepatology, ID, Neurology, Haem-Onc, Rheumatology, Emergencies) — shown as "Coming soon" with their planned topic list so you can see the scope.
+## Build and test
 
-## Building
+Requirements:
 
-Requires JDK 17 and the Android SDK (platform-tools, platforms/android-34, build-tools/34.0.0). With `ANDROID_HOME` set:
+- JDK 17
+- Android SDK platform 34 and Build Tools 34.0.0
 
+With `ANDROID_HOME`/`ANDROID_SDK_ROOT` configured:
+
+```bash
+./gradlew :app:testDebugUnitTest --no-daemon
+./gradlew :app:assembleDebug --no-daemon
 ```
-./gradlew assembleDebug
-./gradlew test
-```
 
-The debug APK lands at `app/build/outputs/apk/debug/app-debug.apk`.
+The APK is written to `app/build/outputs/apk/debug/app-debug.apk`. Unit-test HTML reports are under `app/build/reports/tests/testDebugUnitTest/`.
+
+## Architecture
+
+The app intentionally keeps a small dependency footprint:
+
+- immutable Kotlin content models and per-specialty registries
+- deterministic in-memory search index over the bundled corpus
+- Compose navigation and stateless screens fed through composition locals
+- Preferences DataStore for lightweight user study state
+- JVM tests for registry/search and content-integrity invariants
 
 ## Disclaimer
 
-MedBoard is a study aid and does not replace clinical judgement, local protocols or a current formulary. Verify every management recommendation against UpToDate / NICE / your local guideline before applying it to a patient.
+MedBoard does not replace clinical judgement, local protocols, specialist advice, or an up-to-date formulary. Medical recommendations evolve; check current authoritative guidance before applying any information to patient care.

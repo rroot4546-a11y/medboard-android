@@ -192,13 +192,9 @@ object ContentRegistry {
     fun specialtyFor(topic: Topic): Specialty? =
         specialties.firstOrNull { s -> s.topics.any { it.id == topic.id } }
 
-    /** Flat search across all topics for a case-insensitive substring match. */
-    fun search(query: String): List<Topic> {
-        val q = query.trim()
-        if (q.isEmpty()) return emptyList()
-        return specialties.flatMap { it.topics }.filter {
-            it.title.contains(q, ignoreCase = true) ||
-                it.subtitle.contains(q, ignoreCase = true)
-        }
-    }
+    /** Ranked search across titles, specialties and every structured content block. */
+    fun searchDetailed(query: String): List<TopicSearchResult> = TopicSearch.search(specialties, query)
+
+    /** Compatibility helper for callers that only need topics. */
+    fun search(query: String): List<Topic> = searchDetailed(query).map { it.topic }
 }

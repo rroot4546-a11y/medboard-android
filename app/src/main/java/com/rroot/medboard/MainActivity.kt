@@ -11,10 +11,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.rememberNavController
+import com.rroot.medboard.data.StudyRepository
 import com.rroot.medboard.ui.AppNavHost
+import com.rroot.medboard.ui.LocalStudyRepository
+import com.rroot.medboard.ui.LocalStudyState
 import com.rroot.medboard.ui.theme.LocalThemeController
 import com.rroot.medboard.ui.theme.MedBoardTheme
 import com.rroot.medboard.ui.theme.ThemeController
@@ -29,6 +33,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val ctx = LocalContext.current
             var mode by remember { mutableStateOf(ThemePreference.get(ctx)) }
+            val studyRepository = remember { StudyRepository(ctx.applicationContext) }
+            val studyState by studyRepository.state.collectAsStateWithLifecycle(initialValue = com.rroot.medboard.data.StudyState())
             val controller = ThemeController(
                 mode = mode,
                 onCycle = {
@@ -38,7 +44,11 @@ class MainActivity : ComponentActivity() {
                 },
             )
             MedBoardTheme(mode = mode) {
-                CompositionLocalProvider(LocalThemeController provides controller) {
+                CompositionLocalProvider(
+                    LocalThemeController provides controller,
+                    LocalStudyRepository provides studyRepository,
+                    LocalStudyState provides studyState,
+                ) {
                     Surface(modifier = Modifier.fillMaxSize()) {
                         AppNavHost(rememberNavController())
                     }

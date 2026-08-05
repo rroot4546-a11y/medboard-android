@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Lightbulb
@@ -32,11 +33,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 import com.rroot.medboard.data.CalloutKind
 import com.rroot.medboard.data.ContentRegistry
 import com.rroot.medboard.data.QnA
@@ -61,6 +66,13 @@ import com.rroot.medboard.data.TopicSource
 @Composable
 fun TopicScreen(topicId: String, onBack: () -> Unit) {
     val topic = ContentRegistry.topic(topicId)
+    val studyState = LocalStudyState.current
+    val repository = LocalStudyRepository.current
+    val scope = rememberCoroutineScope()
+    val bookmarked = topicId in studyState.bookmarkedTopicIds
+    LaunchedEffect(topicId, topic?.sections?.isNotEmpty()) {
+        if (topic?.sections?.isNotEmpty() == true) repository.recordOpened(topicId)
+    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -82,6 +94,16 @@ fun TopicScreen(topicId: String, onBack: () -> Unit) {
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                    }
+                },
+                actions = {
+                    if (topic?.sections?.isNotEmpty() == true) {
+                        IconButton(onClick = { scope.launch { repository.toggleBookmark(topicId) } }) {
+                            Icon(
+                                if (bookmarked) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                                if (bookmarked) "Remove bookmark" else "Bookmark topic",
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -108,6 +130,7 @@ fun TopicScreen(topicId: String, onBack: () -> Unit) {
             ),
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
+            item { TopicOverview(topic, bookmarked) }
             if (topic.references.isNotEmpty()) {
                 item { ReferencesCard(topic.references) }
             }
@@ -120,6 +143,28 @@ fun TopicScreen(topicId: String, onBack: () -> Unit) {
             if (topic.qna.isNotEmpty()) {
                 item { RapidQnACard(topic.qna) }
             }
+        }
+    }
+}
+
+@Composable
+private fun TopicOverview(topic: Topic, bookmarked: Boolean) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    ) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Study outline", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                if (bookmarked) Text("Saved", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            }
+            LinearProgressIndicator(progress = { 1f }, modifier = Modifier.fillMaxWidth())
+            Text(
+                "${topic.sections.size} sections · ${topic.boardPearls.size} board pearls · ${topic.qna.size} rapid questions",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -150,8 +195,7 @@ private fun ComingSoonBody(topic: Topic, modifier: Modifier) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("Coming soon", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.tertiary)
                 Text(
-                    "This topic hasn\u2019t been written yet. The planned scope is shown here so you can see what\u2019s on the roadmap. " +
-                        "Cardiology is the first specialty with content; the rest will be added specialty-by-specialty in subsequent updates.",
+                    "This topic is on the editorial roadmap but does not yet contain a reviewed study summary. Explore another ready topic or search the full library.",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }

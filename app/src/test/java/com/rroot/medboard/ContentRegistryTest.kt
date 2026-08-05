@@ -96,6 +96,23 @@ class ContentRegistryTest {
     }
 
     @Test
+    fun fullContentSearchFindsBlocksTablesPearlsQnaAndSpecialties() {
+        assertTrue("Paragraph/bullet text should be searchable", ContentRegistry.search("papillary muscle rupture").isNotEmpty())
+        assertTrue("Table cells should be searchable", ContentRegistry.search("Aortic valve area").isNotEmpty())
+        assertTrue("Board pearls should be searchable", ContentRegistry.search("tearing maximal-at-onset").isNotEmpty())
+        assertTrue("Q&A answers should be searchable", ContentRegistry.search("monitor potassium").isNotEmpty())
+        assertTrue("Specialty names should be searchable", ContentRegistry.search("neurology").isNotEmpty())
+    }
+
+    @Test
+    fun multiTokenSearchCanMatchAcrossFieldsAndReturnsContext() {
+        val results = ContentRegistry.searchDetailed("heart transplantation")
+        assertTrue(results.isNotEmpty())
+        assertTrue(results.first().matchedIn.isNotBlank())
+        assertTrue(results.first().snippet.isNotBlank())
+    }
+
+    @Test
     fun everyReadyTopicHasAtLeastOneSourceAttributedBlock() {
         val ready = ContentRegistry.specialties.flatMap { it.topics }.filter { it.sections.isNotEmpty() }
         ready.forEach { t ->
